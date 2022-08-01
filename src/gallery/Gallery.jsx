@@ -10,7 +10,8 @@ import MasonryLayout from "./MasonryLayout";
 import axios from "axios";
 import Skeleton from "@mui/material/Skeleton";
 import Item from "./Item";
-
+import PhotoAlbum from "react-photo-album";
+import { createApi } from "unsplash-js";
 import * as C from "./constants";
 
 const theme = createTheme({
@@ -30,21 +31,52 @@ const Gallery = () => {
 
   const [photoList, setPhotoList] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const fetchUrl = `${C.PHOTOS_URL}/?offset=${offset}&limit=${C.LIMIT}`;
+  const fetchUrl = `${C.PHOTOS_URL}/?page=${offset}&limit=${C.LIMIT}`;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const isDesktop = useMediaQuery(theme.breakpoints.down("lg"));
 
-  const loadMorePhotos = () => {
+  const unsplash = createApi({
+    accessKey: "FUARWieAAotbsx6MjpYh05wQ5TLA1ENx3iryDRP_DM8",
+  });
+
+  const loadMorePhotos = (count = 10) => {
+    const apiRoot = "https://api.unsplash.com";
+    const accessKey = "4mB0CC1xdwTfTQGjF1v1uO9vS2Z8ubzBPd4X0B86IEU";
+
     axios
-      .get(fetchUrl, { ...C.OPTIONS })
+      .get(`${apiRoot}/photos/random?client_id=${accessKey}&count=${count}`)
+      .then((res) => {
+        setPhotoList([...photoList, ...res.data]);
+        setLoading(true);
+      });
+
+    /*  unsplash.search.getPhotos({ query: "dogs" }).then((result) => {
+      if (result.type === "success") {
+        console.log(result.response);
+        setPhotoList(result.response.results);
+        setLoading(false); */
+
+    /*   if (500 > offset + C.LIMIT) {
+          setHasMore(true);
+          setOffset(offset + C.LIMIT);
+        } else {
+          setHasMore(false);
+        } */
+
+    /*   }); */
+    /*  axios
+      .get(fetchUrl)
       .then((response) => {
         response.data.map((item) => photoList.push(item));
 
         setPhotoList(photoList);
+        setTimeout(() => {
+          setLoading(false);
+        }, 3000);
 
         if (500 > offset + C.LIMIT) {
           setHasMore(true);
@@ -55,8 +87,7 @@ const Gallery = () => {
       })
       .catch((error) => {
         console.log(error);
-        setError(error);
-      });
+      }); */
   };
 
   useEffect(() => {
@@ -70,16 +101,29 @@ const Gallery = () => {
         initialLoad={false}
         loadMore={loadMorePhotos}
         hasMore={hasMore}
-        loader={<Skeleton variant="rectangular" width={210} height={118} />}
+        loader={
+          <img
+            src="https://res.cloudinary.com/chuloo/image/upload/v1550093026/scotch-logo-gif_jq4tgr.gif"
+            alt="loading"
+          />
+        }
       >
-        <MasonryLayout
-          columns={isMobile ? 1 : isTablet ? 2 : isDesktop ? 4 : 5}
-          gap={8}
-        >
-          {photoList?.map((photo) => (
-            <Item key={photo.id} photo={photo} />
-          ))}
-        </MasonryLayout>
+        {loading ? (
+          <MasonryLayout
+            columns={isMobile ? 1 : isTablet ? 2 : isDesktop ? 4 : 5}
+            gap={8}
+          >
+            {photoList?.map((photo) => (
+              <Item
+                key={photo.id}
+                placeholder={photo.urls.small}
+                src={photo.urls.regular}
+              />
+            ))}
+          </MasonryLayout>
+        ) : (
+          ""
+        )}
       </InfiniteScroll>
     </>
   );
