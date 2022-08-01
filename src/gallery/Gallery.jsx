@@ -100,7 +100,7 @@ const Gallery = () => {
         pageStart={0}
         initialLoad={false}
         loadMore={loadMorePhotos}
-        hasMore={hasMore}
+        hasMore={true}
         loader={
           <img
             src="https://res.cloudinary.com/chuloo/image/upload/v1550093026/scotch-logo-gif_jq4tgr.gif"

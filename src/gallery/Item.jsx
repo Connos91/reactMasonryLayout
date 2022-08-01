@@ -7,7 +7,7 @@ import "./style.css";
 
 const Item = ({ placeholder, src }) => {
   console.log("Photo");
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(placeholder || src);
 
   useEffect(() => {
     const img = new Image();
@@ -25,8 +25,9 @@ const Item = ({ placeholder, src }) => {
       <Card variant="outlined">
         <CardMedia
           component="img"
+          alt="green iguana"
           className={`image ${customClass}`}
-          image={src}
+          image={imgSrc}
         />
 
         <CardContent>Test</CardContent>
